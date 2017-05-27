@@ -39,15 +39,6 @@ module Globalize
           # Add attribute to the list.
           self.translated_attribute_names << attr_name
         end
-
-        begin
-          if ::ActiveRecord::VERSION::STRING > "5.0" && table_exists? &&translation_class.table_exists?
-            self.ignored_columns += translated_attribute_names.map(&:to_s)
-            reset_column_information
-          end
-        rescue ::ActiveRecord::NoDatabaseError
-          warn 'Unable to connect to a database. Globalize skipped ignoring columns of translated attributes.'
-        end
       end
 
       def check_columns!(attr_names)
