@@ -1,6 +1,7 @@
 ![Globalize](http://globalize.github.io/globalize/images/globalize.png)
 
 [![Build Status](https://travis-ci.org/globalize/globalize.svg?branch=master)](https://travis-ci.org/globalize/globalize) [![Code Climate](https://codeclimate.com/github/globalize/globalize.svg)](https://codeclimate.com/github/globalize/globalize)
+[![Open Source Helpers](https://www.codetriage.com/globalize/globalize/badges/users.svg)](https://www.codetriage.com/globalize/globalize)
 
 You can chat with us using Gitter:
 
@@ -27,10 +28,10 @@ gem install globalize
 When using bundler put this in your Gemfile:
 
 ```ruby
-gem 'globalize', '~> 5.0.0'
+gem 'globalize', '~> 5.1.0'
 ```
 
-You have to use branch **master** to work with Rails 5.
+Please help us by letting us know what works, and what doesn't, when using pre-release code.
 
 Put in your Gemfile
 
@@ -250,9 +251,9 @@ If you like your translated model to update if a translation changes, use the `t
 If you're getting the `ActiveRecord::StatementInvalid: PG::NotNullViolation: ERROR: null value in column "column_name" violates not-null constraint` error, the only known way to deal with it as of now is to remove not-null constraint for the globalized columns:
 
 ```ruby
-class RemoveNullConstraintsFromResources < ActiveRecord::Migration
+class RemoveNullConstraintsFromResourceTranslations < ActiveRecord::Migration
   def change
-    change_column_null :resources, :column_name, true
+    change_column_null :resource_translations, :column_name, true
   end
 end
 ```

@@ -5,7 +5,11 @@ class AttributesTest < MiniTest::Spec
 
   describe 'translated attribute reader' do
     it 'is defined for translated attributes' do
-      assert Post.new.respond_to?(:title)
+      if ::ActiveRecord::VERSION::STRING < "5.0"
+        assert_equal Post.new.respond_to?(:title), false
+      else
+        assert_equal Post.new.respond_to?(:title), true
+      end
     end
 
     it 'returns the correct translation for a saved record after locale switching' do
@@ -118,9 +122,9 @@ class AttributesTest < MiniTest::Spec
 
     it 'does not change untranslated value' do
       post = Post.create(:title => 'title')
-      before = post.untranslated_attributes['title']
+      assert_nil post.untranslated_attributes['title']
       post.title = 'changed title'
-      assert_equal post.untranslated_attributes['title'], before
+      assert_nil post.untranslated_attributes['title']
     end
 
     it 'does not remove secondary unsaved translations' do
@@ -245,9 +249,16 @@ class AttributesTest < MiniTest::Spec
   end
 
   describe 'serializable attribute' do
+    it 'keeps track of serialized attributes between classes' do
+      assert_equal UnserializedAttr.globalize_serialized_attributes, {}
+      assert_equal SerializedAttr.globalize_serialized_attributes[:meta].class, ActiveRecord::Coders::YAMLColumn
+      assert_equal ArraySerializedAttr.globalize_serialized_attributes[:meta].class, ActiveRecord::Coders::YAMLColumn
+      assert_equal JSONSerializedAttr.globalize_serialized_attributes[:meta], ActiveRecord::Coders::JSON
+    end
+
     it 'works with default marshalling, without data' do
       model = SerializedAttr.create
-      assert_equal nil, model.meta
+      assert_nil model.meta
     end
 
     it 'works with default marshalling, with data' do
@@ -256,13 +267,18 @@ class AttributesTest < MiniTest::Spec
       assert_equal data, model.meta
     end
 
-    it 'works with specified marshalling, without data, rails 5.0+' do
+    it 'works with Hash marshalling, without data' do
       model = SerializedHash.new
       if ::ActiveRecord::VERSION::STRING < "5.0"
         assert_equal Hash.new, model.meta
       else
         assert_equal nil, model.meta
       end
+    end
+
+    it 'works with Array marshalling, without data' do
+      model = ArraySerializedAttr.new
+      assert_equal Array.new, model.meta
     end
   end
 
